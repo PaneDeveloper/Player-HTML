@@ -5,44 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Player de Áudio e Vídeo</title>
   <style>
-    * { box-sizing: border-box; margin:0; padding:0; }
-    html, body { height:100%; background:#121212; color:white; font-family: Arial,sans-serif; }
-    .container { display:flex; height:100%; }
-    @media(min-width:1200px) {
-      .container{flex-direction:row;}
-      #playerArea{width:70%;}
-      #playlistArea{width:15%;}
-      #chatArea{width:15%;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #121212; color: white; font-family: Arial, sans-serif; }
+    .container { display: flex; height: 100%; }
+    @media (min-width: 1200px) {
+      .container { flex-direction: row; }
+      #playerArea { width: 70%; }
+      #playlistArea { width: 15%; }
+      #chatArea { width: 15%; }
     }
-    @media(min-width:768px) and (max-width:1199px) {
-      .container{flex-direction:row;}
-      #playerArea,#playlistArea,#chatArea{flex:1;}
+    @media (min-width: 768px) and (max-width: 1199px) {
+      .container { flex-direction: row; }
+      #playerArea, #playlistArea, #chatArea { flex: 1; }
     }
-    @media(max-width:767px) {
-      .container{flex-direction:column;}
-      #playlistArea{position:fixed;bottom:0;left:0;width:100%;height:180px;border-top:1px solid #333;transform:translateY(100%);transition:transform .3s;}
-      #playlistArea.active{transform:translateY(0);}
-      #chatArea{display:none;}
+    @media (max-width: 767px) {
+      .container { flex-direction: column; }
+      #playlistArea { position: fixed; bottom: 0; left: 0; width: 100%; height: 180px; border-top: 1px solid #333; transform: translateY(100%); transition: transform 0.3s; }
+      #playlistArea.active { transform: translateY(0); }
+      #chatArea { display: none; }
     }
-    #playerArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;}
-    video,audio,iframe{width:100%;max-width:800px;max-height:450px;background:black;border-radius:6px;}
-    #controls{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;}
-    button{background:#ff4500;border:none;padding:.5rem 1rem;border-radius:5px;color:white;cursor:pointer;}
-    #inputArea{margin-top:1rem;display:flex;gap:.5rem;width:100%;max-width:800px;}
-    #linkInput{flex:1;padding:.5rem;border-radius:4px;border:none;}
-    #playlistArea,#chatArea{background:#1f1f1f;overflow-y:auto;border-left:1px solid #333;}
-    #playlistList{padding:1rem;}
-    .playlist-item{display:flex;align-items:center;gap:.5rem;background:#2a2a2a;margin-bottom:.5rem;border-radius:4px;padding:.5rem;position:relative;cursor:pointer;}
-    .playlist-item.active{background:#ff4500;}
-    .thumb{width:60px;height:45px;border-radius:4px;object-fit:cover;}
-    .info{flex:1;overflow:hidden;}
-    .remove-btn{position:absolute;top:5px;right:5px;background:red;border:none;color:white;border-radius:50%;width:20px;height:20px;font-size:14px;display:none;cursor:pointer;}
-    .playlist-item:hover .remove-btn{display:block;}
-    #menuBtn{position:fixed;bottom:10px;right:10px;width:40px;height:40px;border-radius:50%;background:#2a2a2a;color:white;font-size:24px;border:none;cursor:pointer;}
-    #menuDropdown{display:none;position:fixed;bottom:60px;right:10px;background:#2a2a2a;border-radius:5px;padding:.5rem;}
-    #menuDropdown button,#menuDropdown label{display:block;background:none;border:none;color:white;padding:.5rem;text-align:left;cursor:pointer;}
-    #menuDropdown button:hover,#menuDropdown label:hover{background:#444;}
-    #debugBox{display:none;position:fixed;bottom:0;left:0;background:#333;color:#ccc;padding:.5rem;font-family:monospace;font-size:.8rem;max-width:300px;max-height:200px;overflow-y:auto;border-top-right-radius:6px;}
+    #playerArea { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
+    video, audio, iframe { width: 100%; max-width: 800px; max-height: 450px; background: black; border-radius: 6px; }
+    #controls { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+    button { background: #ff4500; border: none; padding: 0.5rem 1rem; border-radius: 5px; color: white; cursor: pointer; }
+    #inputArea { margin-top: 1rem; display: flex; gap: 0.5rem; width: 100%; max-width: 800px; }
+    #linkInput { flex: 1; padding: 0.5rem; border-radius: 4px; border: none; }
+    #playlistArea, #chatArea { background: #1f1f1f; overflow-y: auto; border-left: 1px solid #333; }
+    #playlistList { padding: 1rem; }
+    .playlist-item { display: flex; align-items: center; gap: 0.5rem; background: #2a2a2a; margin-bottom: 0.5rem; border-radius: 4px; padding: 0.5rem; position: relative; cursor: pointer; }
+    .playlist-item.active { background: #ff4500; }
+    .thumb { width: 60px; height: 45px; border-radius: 4px; object-fit: cover; }
+    .info { flex: 1; overflow: hidden; }
+    .remove-btn { position: absolute; top: 5px; right: 5px; background: red; border: none; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; display: none; cursor: pointer; }
+    .playlist-item:hover .remove-btn { display: block; }
+    #menuBtn { position: fixed; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: #2a2a2a; color: white; font-size: 24px; border: none; cursor: pointer; }
+    #menuDropdown { display: none; position: fixed; bottom: 60px; right: 10px; background: #2a2a2a; border-radius: 5px; padding: 0.5rem; }
+    #menuDropdown button, #menuDropdown label { display: block; background: none; border: none; color: white; padding: 0.5rem; text-align: left; cursor: pointer; }
+    #menuDropdown button:hover, #menuDropdown label:hover { background: #444; }
+    #debugBox { display: none; position: fixed; bottom: 0; left: 0; background: #333; color: #ccc; padding: 0.5rem; font-family: monospace; font-size: 0.8rem; max-width: 300px; max-height: 200px; overflow-y: auto; border-top-right-radius: 6px; }
   </style>
 </head>
 <body>
@@ -65,7 +65,7 @@
     <div id="playlistArea">
       <div id="playlistList"></div>
     </div>
-    <iframe id="chatArea" src="" style="display:none;border:none;"></iframe>
+    <iframe id="chatArea" src="" style="display:none; border:none;"></iframe>
   </div>
   <div id="debugBox"></div>
   <button id="menuBtn">☰</button>
@@ -124,7 +124,7 @@
         const info = document.createElement('div'); info.className = 'info';
         info.textContent = item.title || item.src || item.file?.name;
         const rem = document.createElement('button'); rem.className = 'remove-btn'; rem.textContent='×';
-        rem.onclick = e=>{ e.stopPropagation(); playlist.splice(i,1); if(i===currentIndex){ if(playlist[i]) playItem(i); else stopMedia(); } renderPlaylist(); };
+        rem.onclick = e => { e.stopPropagation(); playlist.splice(i, 1); if (i === currentIndex) { if (playlist[i]) playItem(i); else stopMedia(); } renderPlaylist(); };
         div.append(thumb, info, rem);
         div.onclick = () => playItem(i);
         playlistList.append(div);
@@ -148,7 +148,7 @@
           chatArea.style.display='block';
         }
       }
-      else if (item.type==='file') {
+      else if (item.type === 'file') {
         const url = URL.createObjectURL(item.file);
         if (item.file.type.startsWith('video')) { mediaPlayer.src=url; mediaPlayer.style.display='block'; mediaPlayer.play(); }
         else { audioPlayer.src=url; audioPlayer.style.display='block'; audioPlayer.play(); }
@@ -164,29 +164,29 @@
       currentIndex=-1; renderPlaylist();
     }
 
-    mediaPlayer.onended = audioPlayer.onended = ()=>{ if(currentIndex+1<playlist.length) playItem(currentIndex+1);}  
-    
-    fileSelectBtn.onclick = ()=> fileInput.click();
-    fileInput.onchange = ()=>{ Array.from(fileInput.files).forEach(f=> playlist.push({type:'file',file:f,title:f.name})); if(currentIndex===-1) playItem(0); else renderPlaylist(); fileInput.value=''; };
-    
-    linkInput.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){
-        const url=linkInput.value.trim(); if(!url) return;
-        playlist.push({type:'link',src:url,title:url});
-        if(!e.ctrlKey) playItem(playlist.length-1); else renderPlaylist();
+    mediaPlayer.onended = audioPlayer.onended = () => { if (currentIndex+1 < playlist.length) playItem(currentIndex+1); }
+
+    fileSelectBtn.onclick = () => fileInput.click();
+    fileInput.onchange = () => { Array.from(fileInput.files).forEach(f => playlist.push({ type:'file', file:f, title:f.name })); if (currentIndex===-1) playItem(0); else renderPlaylist(); fileInput.value=''; };
+
+    linkInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const url = linkInput.value.trim(); if (!url) return;
+        playlist.push({ type:'link', src:url, title:url });
+        if (!e.ctrlKey) playItem(playlist.length-1); else renderPlaylist();
         linkInput.value='';
       }
     });
-    sendLinkBtn.onclick = ()=>{ const url=linkInput.value.trim(); if(url){ playlist.push({type:'link',src:url,title:url}); playItem(playlist.length-1); linkInput.value=''; }};
-    stopBtn.onclick=stopMedia;
-    togglePlaylistBtn.onclick=()=> playlistArea.classList.toggle('active');
-    menuBtn.onclick=()=> menuDropdown.style.display = menuDropdown.style.display==='block'?'none':'block';
-    reloadBtn.onclick=()=> location.reload();
-    clearHistoryBtn.onclick=()=>{ playlist=[]; stopMedia(); };
-    debugToggle.onchange=()=> debugBox.style.display = debugToggle.checked?'block':'none';
+    sendLinkBtn.onclick = () => { const url = linkInput.value.trim(); if (url) { playlist.push({ type:'link', src:url, title:url }); playItem(playlist.length-1); linkInput.value=''; }};
+    stopBtn.onclick = stopMedia;
+    togglePlaylistBtn.onclick = () => playlistArea.classList.toggle('active');
+    menuBtn.onclick = () => menuDropdown.style.display = menuDropdown.style.display==='block'?'none':'block';
+    reloadBtn.onclick = () => location.reload();
+    clearHistoryBtn.onclick = () => { playlist=[]; stopMedia(); };
+    debugToggle.onchange = () => debugBox.style.display = debugToggle.checked?'block':'none';
 
-    function updateDebug(msg){ if(debugToggle.checked){ debugBox.textContent=msg; debugBox.style.display='block'; }}
-    window.addEventListener('click', e=>{ if(!menuDropdown.contains(e.target)&&e.target!==menuBtn){ menuDropdown.style.display='none'; }});
+    function updateDebug(msg) { if (debugToggle.checked) { debugBox.textContent = msg; debugBox.style.display='block'; }}
+    window.addEventListener('click', e => { if (!menuDropdown.contains(e.target) && e.target!==menuBtn) menuDropdown.style.display='none'; });
 
     renderPlaylist();
   </script>
