@@ -63,6 +63,7 @@
       padding: 0.5rem;
       border-radius: 5px;
       position: relative;
+      cursor: pointer;
     }
     .playlist-item img {
       width: 100%;
@@ -188,7 +189,71 @@
   </div>
 
   <script>
-    // Aqui entra o script que já enviei na resposta anterior para controlar o player, playlist, debug e menu
+    const playlist = [];
+    let currentIndex = -1;
+
+    const mediaPlayer = document.getElementById('mediaPlayer');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    const playlistList = document.getElementById('playlistList');
+    const debugBox = document.getElementById('debugBox');
+
+    function playItem(index) {
+      currentIndex = index;
+      const item = playlist[index];
+      if (!item) return;
+
+      mediaPlayer.style.display = 'none';
+      audioPlayer.style.display = 'none';
+      youtubePlayer.style.display = 'none';
+
+      mediaPlayer.pause();
+      audioPlayer.pause();
+
+      if (item.type === 'file') {
+        const url = URL.createObjectURL(item.file);
+        if (item.file.type.startsWith('video')) {
+          mediaPlayer.src = url;
+          mediaPlayer.style.display = 'block';
+          mediaPlayer.play();
+        } else {
+          audioPlayer.src = url;
+          audioPlayer.style.display = 'block';
+          audioPlayer.play();
+        }
+      }
+
+      renderPlaylist();
+    }
+
+    function renderPlaylist() {
+      playlistList.innerHTML = '';
+      playlist.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'playlist-item';
+        div.textContent = item.file.name;
+        if (i === currentIndex) div.style.background = '#ff4500';
+        div.onclick = () => playItem(i);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.textContent = '×';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          playlist.splice(i, 1);
+          renderPlaylist();
+        };
+
+        div.appendChild(removeBtn);
+        playlistList.appendChild(div);
+      });
+    }
+
+    mediaPlayer.onended = audioPlayer.onended = () => {
+      if (currentIndex + 1 < playlist.length) {
+        playItem(currentIndex + 1);
+      }
+    };
   </script>
 </body>
 </html>
