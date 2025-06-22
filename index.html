@@ -8,16 +8,29 @@
     * { box-sizing: border-box; margin:0; padding:0; }
     html, body { height:100%; background:#121212; color:white; font-family: Arial,sans-serif; }
     .container { display:flex; height:100%; }
-    @media(min-width:1200px) { .container{flex-direction:row;} #playerArea{width:70%;} #playlistArea{width:30%;} }
-    @media(min-width:768px) and (max-width:1199px) { .container{flex-direction:row;} #playerArea,#playlistArea{flex:1;} }
-    @media(max-width:767px) { .container{flex-direction:column;} #playlistArea{position:fixed;bottom:0;left:0;width:100%;height:180px;border-top:1px solid #333;transform:translateY(100%);transition:transform .3s;} #playlistArea.active{transform:translateY(0);} }
+    @media(min-width:1200px) {
+      .container{flex-direction:row;}
+      #playerArea{width:70%;}
+      #playlistArea{width:15%;}
+      #chatArea{width:15%;}
+    }
+    @media(min-width:768px) and (max-width:1199px) {
+      .container{flex-direction:row;}
+      #playerArea,#playlistArea,#chatArea{flex:1;}
+    }
+    @media(max-width:767px) {
+      .container{flex-direction:column;}
+      #playlistArea{position:fixed;bottom:0;left:0;width:100%;height:180px;border-top:1px solid #333;transform:translateY(100%);transition:transform .3s;}
+      #playlistArea.active{transform:translateY(0);}
+      #chatArea{display:none;}
+    }
     #playerArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;}
     video,audio,iframe{width:100%;max-width:800px;max-height:450px;background:black;border-radius:6px;}
     #controls{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;}
     button{background:#ff4500;border:none;padding:.5rem 1rem;border-radius:5px;color:white;cursor:pointer;}
     #inputArea{margin-top:1rem;display:flex;gap:.5rem;width:100%;max-width:800px;}
     #linkInput{flex:1;padding:.5rem;border-radius:4px;border:none;}
-    #playlistArea{background:#1f1f1f;overflow-y:auto;border-left:1px solid #333;}
+    #playlistArea,#chatArea{background:#1f1f1f;overflow-y:auto;border-left:1px solid #333;}
     #playlistList{padding:1rem;}
     .playlist-item{display:flex;align-items:center;gap:.5rem;background:#2a2a2a;margin-bottom:.5rem;border-radius:4px;padding:.5rem;position:relative;cursor:pointer;}
     .playlist-item.active{background:#ff4500;}
@@ -52,6 +65,7 @@
     <div id="playlistArea">
       <div id="playlistList"></div>
     </div>
+    <iframe id="chatArea" src="" style="display:none;border:none;"></iframe>
   </div>
   <div id="debugBox"></div>
   <button id="menuBtn">☰</button>
@@ -61,53 +75,41 @@
     <label><input type="checkbox" id="debugToggle" /> Debug</label>
   </div>
   <script>
-    const mediaPlayer = document.getElementById('mediaPlayer');
-    const audioPlayer = document.getElementById('audioPlayer');
     const youtubePlayer = document.getElementById('youtubePlayer');
-    const fileInput = document.getElementById('fileInput');
-    const fileSelectBtn = document.getElementById('fileSelectBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const togglePlaylistBtn = document.getElementById('togglePlaylistBtn');
-    const linkInput = document.getElementById('linkInput');
-    const sendLinkBtn = document.getElementById('sendLinkBtn');
-    const playlistArea = document.getElementById('playlistArea');
-    const playlistList = document.getElementById('playlistList');
-    const menuBtn = document.getElementById('menuBtn');
-    const menuDropdown = document.getElementById('menuDropdown');
-    const reloadBtn = document.getElementById('reloadBtn');
-    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-    const debugToggle = document.getElementById('debugToggle');
-    const debugBox = document.getElementById('debugBox');
-    let playlist = [];
-    let currentIndex = -1;
-    function renderPlaylist() {
-      playlistList.innerHTML = '';
-      playlist.forEach((item,i) => {
-        const div = document.createElement('div');
-        div.className='playlist-item'+(i===currentIndex?' active':'');
-        const thumb = document.createElement('img'); thumb.className='thumb'; thumb.src=item.thumb||'https://via.placeholder.com/60x45';
-        const info = document.createElement('div'); info.className='info'; info.textContent=item.title||item.src||item.file.name;
-        const remove=document.createElement('button');remove.className='remove-btn';remove.textContent='×';remove.onclick=(e)=>{e.stopPropagation();playlist.splice(i,1);if(i===currentIndex){if(playlist.length>i) playItem(i);else stopMedia();}renderPlaylist();};
-        div.append(thumb,info,remove);
-        div.onclick=()=>playItem(i);
-        playlistList.append(div);
-      });
+    const chatArea = document.getElementById('chatArea');
+    function getYouTubeId(url) {
+      try {
+        if (url.includes('youtu.be/')) return url.split('youtu.be/')[1].split('?')[0];
+        if (url.includes('youtube.com/watch')) return new URL(url).searchParams.get('v');
+        if (url.includes('/shorts/')) return url.split('/shorts/')[1].split('?')[0];
+      } catch { return null; }
     }
-    function playItem(i){currentIndex=i;const item=playlist[i];mediaPlayer.style.display='none';audioPlayer.style.display='none';youtubePlayer.style.display='none';mediaPlayer.pause();audioPlayer.pause();if(item.type==='file'){const url=URL.createObjectURL(item.file);if(item.file.type.startsWith('video')){mediaPlayer.src=url;mediaPlayer.style.display='block';mediaPlayer.play();}else{audioPlayer.src=url;audioPlayer.style.display='block';audioPlayer.play();}}else{mediaPlayer.src=item.src;mediaPlayer.style.display='block';mediaPlayer.play();}renderPlaylist();updateDebug(`Tocando: ${item.title||item.src}`);}    
-    function stopMedia(){mediaPlayer.pause();audioPlayer.pause();mediaPlayer.src='';audioPlayer.src='';mediaPlayer.style.display='none';audioPlayer.style.display='none';currentIndex=-1;renderPlaylist();}
-    mediaPlayer.onended=audioPlayer.onended=()=>{if(currentIndex+1<playlist.length) playItem(currentIndex+1);}    
-    fileSelectBtn.onclick=()=>fileInput.click();fileInput.onchange=()=>{Array.from(fileInput.files).forEach(f=>playlist.push({type:'file',file:f,title:f.name}));if(currentIndex===-1)playItem(0);else renderPlaylist();fileInput.value='';};
-    linkInput.addEventListener('keydown',e=>{if(e.key==='Enter'){const url=linkInput.value.trim();if(!url)return;playlist.push({type:'link',src:url,title:url});if(!e.ctrlKey) playItem(playlist.length-1);else renderPlaylist();linkInput.value='';}});
-    sendLinkBtn.onclick=()=>{const url=linkInput.value.trim();if(url){playlist.push({type:'link',src:url,title:url});playItem(playlist.length-1);linkInput.value='';}};
-    stopBtn.onclick=()=>stopMedia();
-    togglePlaylistBtn.onclick=()=>playlistArea.classList.toggle('active');
-    menuBtn.onclick=()=>menuDropdown.style.display=menuDropdown.style.display==='block'?'none':'block';
-    reloadBtn.onclick=()=>location.reload();
-    clearHistoryBtn.onclick=()=>{playlist=[];stopMedia();};
-    debugToggle.onchange=()=>debugBox.style.display=debugToggle.checked?'block':'none';
-    function updateDebug(msg){if(debugToggle.checked){debugBox.textContent=msg;debugBox.style.display='block';}}
-    window.addEventListener('click',e=>{if(!menuDropdown.contains(e.target)&&e.target!==menuBtn){menuDropdown.style.display='none';}});
-    renderPlaylist();
+    function isYouTubeLive(videoId) {
+      return videoId?.startsWith('live');
+    }
+    const originalPlayItem = window.playItem;
+    window.playItem = function(i) {
+      currentIndex = i;
+      const item = playlist[i];
+      mediaPlayer.style.display = 'none';
+      audioPlayer.style.display = 'none';
+      youtubePlayer.style.display = 'none';
+      chatArea.style.display = 'none';
+      mediaPlayer.pause();
+      audioPlayer.pause();
+      if (item.src?.includes('youtube.com') || item.src?.includes('youtu.be') || item.src?.includes('/shorts/')) {
+        const id = getYouTubeId(item.src);
+        if (id) {
+          youtubePlayer.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+          youtubePlayer.style.display = 'block';
+          chatArea.src = `https://www.youtube.com/live_chat?v=${id}&embed_domain=${location.hostname}`;
+          chatArea.style.display = 'block';
+        }
+      } else {
+        originalPlayItem(i);
+      }
+      renderPlaylist();
+    }
   </script>
 </body>
 </html>
